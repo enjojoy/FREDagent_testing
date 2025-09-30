@@ -1,4 +1,4 @@
-This **CrewAI Masumi Starter Kit** lets you quickly deploy your own CrewAI agents and integrate them with Masumi’s decentralized payment solution.
+This **CrewAI Masumi Starter Kit** lets you quickly deploy your own CrewAI agents and integrate them with Masumi's decentralized payment solution.
 [Follow this guide](https://docs.masumi.network/documentation/how-to-guides/agent-from-zero-to-hero)
 
 **Key benefits:**
@@ -6,6 +6,26 @@ This **CrewAI Masumi Starter Kit** lets you quickly deploy your own CrewAI agent
 - Simple setup: Just clone, configure, and deploy.
 - Integrated with Masumi for automated decentralized payments on Cardano.
 - Production-ready API built with FastAPI.
+
+---
+
+## 🚀 **Quick Start**
+
+Run your CrewAI agent:
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Test your agent (standalone)
+python main.py
+
+# Run as API server
+python main.py api
+# Visit http://localhost:8000/docs for API documentation
+```
+
+**That's it!** Your CrewAI agent is now running. For full payment integration, continue with the detailed setup below.
 
 ---
 
@@ -66,9 +86,9 @@ OPENAI_API_KEY=your_openai_api_key
 
 ### **3. Define Your CrewAI Agents**
 
-Look around the `crew_definition.py` file. It has a basic `ResearchCrew` defined. Here you can define your agent functionality. 
+Look around the `crew_definition.py` file. It has a basic `ResearchCrew` defined. Here you can define your agent functionality.
 
-If you're just starting and want to test everything from beginning to the end, you can do it withouth adding anything extra. 
+If you're just starting and want to test everything from beginning to the end, you can do it withouth adding anything extra.
 
 #### Test your agent:
 
@@ -95,7 +115,7 @@ python main.py
 
 ---
 
-###  **4. Expose Your Agent via API**
+### **4. Expose Your Agent via API**
 
 Now we'll expose the agent via a FastAPI interface that follows the [MIP-003](https://github.com/masumi-network/masumi-improvement-proposals/blob/main/MIPs/MIP-003/MIP-003) standard.
 
@@ -135,7 +155,7 @@ Once installed (locally), your payment service will be available at:
 - Admin Dashboard: http://localhost:3001/admin
 - API Documentation: http://localhost:3001/docs
 
-If you used some other way of deployment, for example with Rialway, you have to find the URL there. 
+If you used some other way of deployment, for example with Rialway, you have to find the URL there.
 
 Verify it's running:
 
@@ -172,10 +192,9 @@ Before accepting payments, register your agent on the Masumi Network.
 
 1. Get your payment source information using [/payment-source/](https://docs.masumi.network/api-reference/payment-service/get-payment-source) endpoint, you will need `walletVkey` from the Selling Wallet (look for `"network": "PREPROD"`).:
 
-
 2.Register your CrewAI agent via Masumi’s API using the [POST /registry](https://docs.masumi.network/api-reference/payment-service/post-registry) endpoint.
 
-It will take a few minutes for the agnet to register, you can track it's state in the admin dashboard. 
+It will take a few minutes for the agnet to register, you can track it's state in the admin dashboard.
 
 3. Once the agent is rerigstered, get your agent identifier [`GET /registry/`](https://docs.masumi.network/api-reference/payment-service/get-registry)
 
@@ -219,10 +238,7 @@ curl -X POST 'http://localhost:3001/api/v1/purchase' \
 
 ## Your agent will process the job and return results once payment is confirmed!
 
-
-
-
- **Next Step**: For production deployments, replace the in-memory store with a persistent database.
+**Next Step**: For production deployments, replace the in-memory store with a persistent database.
 
 ---
 
@@ -232,3 +248,4 @@ curl -X POST 'http://localhost:3001/api/v1/purchase' \
 - [Masumi Documentation](https://docs.masumi.network)
 - [FastAPI](https://fastapi.tiangolo.com)
 - [Cardano Testnet Faucet](https://docs.cardano.org/cardano-testnets/tools/faucet)
+# FREDagent
