@@ -249,3 +249,4 @@ curl -X POST 'http://localhost:3001/api/v1/purchase' \
 - [FastAPI](https://fastapi.tiangolo.com)
 - [Cardano Testnet Faucet](https://docs.cardano.org/cardano-testnets/tools/faucet)
 # FREDagent
+# FREDagent
