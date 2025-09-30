@@ -9,7 +9,7 @@ This **CrewAI Masumi Starter Kit** lets you quickly deploy your own CrewAI agent
 
 ---
 
-## 🚀 **Quick Start**
+## 🚀 **Quick Start** 
 
 Run your CrewAI agent:
 

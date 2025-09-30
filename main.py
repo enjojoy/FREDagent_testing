@@ -6,7 +6,7 @@ from fastapi import FastAPI, Query, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from masumi.config import Config
 from masumi.payment import Payment, Amount
-from crew_definition import ResearchCrew
+from crew_definition import FREDEconomicCrew
 from logging_config import setup_logging
 
 # Configure logging
@@ -26,8 +26,8 @@ logger.info(f"PAYMENT_SERVICE_URL: {PAYMENT_SERVICE_URL}")
 
 # Initialize FastAPI
 app = FastAPI(
-    title="API following the Masumi API Standard",
-    description="API for running Agentic Services tasks with Masumi payment integration",
+    title="FRED Economic Data Agent - Masumi API Standard",
+    description="AI agent for querying Federal Reserve Economic Data (FRED) with Masumi payment integration",
     version="1.0.0"
 )
 
@@ -57,7 +57,7 @@ class StartJobRequest(BaseModel):
             "example": {
                 "identifier_from_purchaser": "example_purchaser_123",
                 "input_data": {
-                    "text": "Write a story about a robot learning to paint"
+                    "text": "What is the current unemployment rate in the United States?"
                 }
             }
         }
@@ -69,12 +69,11 @@ class ProvideInputRequest(BaseModel):
 # CrewAI Task Execution
 # ─────────────────────────────────────────────────────────────────────────────
 async def execute_crew_task(input_data: str) -> str:
-    """ Execute a CrewAI task with Research and Writing Agents """
-    logger.info(f"Starting CrewAI task with input: {input_data}")
-    crew = ResearchCrew(logger=logger)
-    inputs = {"text": input_data}
-    result = crew.crew.kickoff(inputs)
-    logger.info("CrewAI task completed successfully")
+    """ Execute a CrewAI task with FRED Economic Data Agents """
+    logger.info(f"Starting FRED Economic Data query with input: {input_data}")
+    crew = FREDEconomicCrew(logger=logger)
+    result = crew.crew.kickoff(inputs={"text": input_data})
+    logger.info("FRED Economic Data query completed successfully")
     return result
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -105,7 +104,7 @@ async def start_job(data: StartJobRequest):
         # Create a payment request using Masumi
         payment = Payment(
             agent_identifier=agent_identifier,
-            #amounts=amounts,
+            amounts=amounts,
             config=config,
             identifier_from_purchaser=data.identifier_from_purchaser,
             input_data=data.input_data,
@@ -256,7 +255,7 @@ async def get_status(job_id: str):
 async def check_availability():
     """ Checks if the server is operational """
 
-    return {"status": "available", "type": "masumi-agent", "message": "Server operational."}
+    return {"status": "available", "type": "masumi-agent", "agent_type": "fred-economic-data", "message": "FRED Economic Data Agent operational."}
     # Commented out for simplicity sake but its recommended to include the agentIdentifier
     #return {"status": "available","agentIdentifier": os.getenv("AGENT_IDENTIFIER"), "message": "The server is running smoothly."}
 
@@ -274,10 +273,10 @@ async def input_schema():
             {
                 "id": "text",
                 "type": "string",
-                "name": "Task Description",
+                "name": "Economic Data Query",
                 "data": {
-                    "description": "The text input for the AI task",
-                    "placeholder": "Enter your task description here"
+                    "description": "Your question about economic data from FRED (Federal Reserve Economic Data)",
+                    "placeholder": "e.g., What is the current inflation rate? or Show me GDP growth data"
                 }
             }
         ]
@@ -298,14 +297,39 @@ async def health():
 # ─────────────────────────────────────────────────────────────────────────────
 # Main Logic if Called as a Script
 # ─────────────────────────────────────────────────────────────────────────────
-def main():
-    print("Running CrewAI as standalone script is not supported when using payments.")
-    print("Start the API using `python main.py api` instead.")
+def test_standalone():
+    """
+    Standalone test function for FRED Economic Data Agent
+    Usage: python main.py
+    """
+    print("\n" + "="*80)
+    print("🧪 FRED Economic Data Agent - Standalone Test")
+    print("="*80 + "\n")
+    
+    input_data = {"text": "What is the current unemployment rate in the United States?"}
+    crew = FREDEconomicCrew()
+    result = crew.crew.kickoff(input_data)
+    
+    print("\n" + "="*80)
+    print("📊 FRED AGENT RESPONSE:")
+    print("="*80)
+    print(result)
+    print("="*80 + "\n")
 
 if __name__ == "__main__":
     import sys
+    
     if len(sys.argv) > 1 and sys.argv[1] == "api":
-        print("Starting FastAPI server with Masumi integration...")
+        print("\n" + "="*80)
+        print("🚀 Starting FRED Economic Data Agent API Server")
+        print("="*80)
+        print("\n📡 API will be available at:")
+        print("   • API Docs: http://localhost:8000/docs")
+        print("   • Redoc: http://localhost:8000/redoc")
+        print("   • Health: http://localhost:8000/health")
+        print("   • Availability: http://localhost:8000/availability")
+        print("\n" + "="*80 + "\n")
+        
         uvicorn.run(app, host="0.0.0.0", port=8000)
     else:
-        main()
+        test_standalone()

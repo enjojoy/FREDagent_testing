@@ -6,3 +6,4 @@ masumi
 pydantic
 python-multipart
 httpx
+fredapi
