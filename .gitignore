@@ -4,6 +4,11 @@
 venv/
 ENV/
 .env.local
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
 
 # Python
 __pycache__/
@@ -37,6 +42,8 @@ wheels/
 job_results/
 logs/
 *.log
+testing/
+__pycache__/
 
 # IDE
 .idea/
