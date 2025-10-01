@@ -1,5 +1,6 @@
-This **CrewAI Masumi Starter Kit** lets you quickly deploy your own CrewAI agents and integrate them with Masumi's decentralized payment solution.
-[Follow this guide](https://docs.masumi.network/documentation/how-to-guides/agent-from-zero-to-hero)
+This **FRED Economic Data Agent** is a production-ready AI agent that queries Federal Reserve Economic Data (FRED) and integrates with Masumi's decentralized payment solution. **🚀 SOKOSUMI READY!**
+
+[Follow this guide](https://docs.masumi.network/documentation/how-to-guides/agent-from-zero-to-hero) | [List on Sokosumi](https://docs.masumi.network/documentation/how-to-guides/list-agent-on-sokosumi)
 
 **Key benefits:**
 
@@ -9,7 +10,7 @@ This **CrewAI Masumi Starter Kit** lets you quickly deploy your own CrewAI agent
 
 ---
 
-## 🚀 **Quick Start** 
+## 🚀 **Quick Start**
 
 Run your CrewAI agent:
 
@@ -242,11 +243,27 @@ curl -X POST 'http://localhost:3001/api/v1/purchase' \
 
 ---
 
+## 🚀 **Sokosumi Marketplace Ready**
+
+Your FRED agent is now **Sokosumi marketplace ready** with:
+
+- ✅ **MIP-003 Compliant API** - All required endpoints
+- ✅ **Agent Metadata** - `/metadata` endpoint for marketplace
+- ✅ **Enhanced Input Schema** - Detailed requirements with examples
+- ✅ **Production Ready** - Docker support and comprehensive error handling
+
+### **Quick Sokosumi Submission**
+
+1. **Deploy your agent** (see deployment steps above)
+2. **Test all endpoints** to ensure they work
+3. **Submit to Sokosumi**: [Submit Form](https://docs.masumi.network/documentation/how-to-guides/list-agent-on-sokosumi)
+
+For detailed Sokosumi setup, see: **[SOKOSUMI_READY.md](./SOKOSUMI_READY.md)**
+
 ## **Useful Resources**
 
 - [CrewAI Documentation](https://docs.crewai.com)
 - [Masumi Documentation](https://docs.masumi.network)
+- [Sokosumi Marketplace](https://docs.masumi.network/documentation/how-to-guides/list-agent-on-sokosumi)
 - [FastAPI](https://fastapi.tiangolo.com)
 - [Cardano Testnet Faucet](https://docs.cardano.org/cardano-testnets/tools/faucet)
-# FREDagent
-# FREDagent

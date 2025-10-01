@@ -49,8 +49,17 @@ config = Config(
 # Pydantic Models
 # ─────────────────────────────────────────────────────────────────────────────
 class StartJobRequest(BaseModel):
-    identifier_from_purchaser: str
-    input_data: dict[str, str]
+    identifier_from_purchaser: str = Field(..., min_length=1, description="Unique identifier from the purchaser")
+    input_data: dict[str, str] = Field(..., description="Input data containing the economic query")
+    
+    @field_validator('input_data')
+    @classmethod
+    def validate_input_data(cls, v):
+        if not v or 'text' not in v:
+            raise ValueError('input_data must contain a "text" field with the economic query')
+        if not v['text'] or len(v['text'].strip()) < 5:
+            raise ValueError('text field must contain at least 5 characters')
+        return v
     
     class Config:
         json_schema_extra = {
@@ -150,17 +159,23 @@ async def start_job(data: StartJobRequest):
             "input_hash": payment.input_hash,
             "payByTime": payment_request["data"]["payByTime"],
         }
+    except ValueError as e:
+        logger.error(f"Validation error in request: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=400,
+            detail=f"Validation error: {str(e)}"
+        )
     except KeyError as e:
         logger.error(f"Missing required field in request: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=400,
-            detail="Bad Request: If input_data or identifier_from_purchaser is missing, invalid, or does not adhere to the schema."
+            detail="Bad Request: Missing required field in request data."
         )
     except Exception as e:
         logger.error(f"Error in start_job: {str(e)}", exc_info=True)
         raise HTTPException(
-            status_code=400,
-            detail="Input_data or identifier_from_purchaser is missing, invalid, or does not adhere to the schema."
+            status_code=500,
+            detail="Internal server error occurred while processing the request."
         )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -254,10 +269,16 @@ async def get_status(job_id: str):
 @app.get("/availability")
 async def check_availability():
     """ Checks if the server is operational """
-
-    return {"status": "available", "type": "masumi-agent", "agent_type": "fred-economic-data", "message": "FRED Economic Data Agent operational."}
-    # Commented out for simplicity sake but its recommended to include the agentIdentifier
-    #return {"status": "available","agentIdentifier": os.getenv("AGENT_IDENTIFIER"), "message": "The server is running smoothly."}
+    agent_identifier = os.getenv("AGENT_IDENTIFIER")
+    
+    return {
+        "status": "available", 
+        "type": "masumi-agent", 
+        "agent_type": "fred-economic-data",
+        "agentIdentifier": agent_identifier,
+        "version": "1.0.0",
+        "message": "FRED Economic Data Agent operational and ready to process economic data queries."
+    }
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5) Retrieve Input Schema (MIP-003: /input_schema)
@@ -274,16 +295,78 @@ async def input_schema():
                 "id": "text",
                 "type": "string",
                 "name": "Economic Data Query",
+                "required": True,
                 "data": {
-                    "description": "Your question about economic data from FRED (Federal Reserve Economic Data)",
-                    "placeholder": "e.g., What is the current inflation rate? or Show me GDP growth data"
+                    "description": "Your question about economic data from FRED (Federal Reserve Economic Data). Ask about unemployment, inflation, GDP, interest rates, or any other economic indicators.",
+                    "placeholder": "e.g., What is the current unemployment rate? or Show me GDP growth data for 2023",
+                    "examples": [
+                        "What is the current inflation rate in the United States?",
+                        "Show me the unemployment rate over the last 12 months",
+                        "What is the current federal funds rate?",
+                        "Display GDP growth data for the last quarter"
+                    ]
                 }
             }
         ]
     }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 6) Health Check
+# 6) Agent Metadata (Required for Sokosumi)
+# ─────────────────────────────────────────────────────────────────────────────
+@app.get("/metadata")
+async def get_agent_metadata():
+    """
+    Returns agent metadata for Sokosumi marketplace listing.
+    """
+    agent_identifier = os.getenv("AGENT_IDENTIFIER")
+    payment_amount = os.getenv("PAYMENT_AMOUNT", "10000000")
+    payment_unit = os.getenv("PAYMENT_UNIT", "lovelace")
+    
+    return {
+        "agentIdentifier": agent_identifier,
+        "name": "FRED Economic Data Agent",
+        "description": "AI-powered agent that queries and analyzes Federal Reserve Economic Data (FRED). Get real-time economic indicators, historical data, and expert analysis on unemployment, inflation, GDP, interest rates, and more.",
+        "version": "1.0.0",
+        "category": "Economic Data Analysis",
+        "tags": ["economics", "fred", "data-analysis", "federal-reserve", "economic-indicators"],
+        "pricing": {
+            "amount": payment_amount,
+            "unit": payment_unit,
+            "currency": "ADA"
+        },
+        "capabilities": [
+            "Search FRED database for economic data series",
+            "Retrieve real-time economic indicators",
+            "Provide historical data analysis",
+            "Explain economic concepts and trends",
+            "Generate direct links to FRED data sources"
+        ],
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string",
+                    "description": "Economic data query or question",
+                    "examples": [
+                        "What is the current unemployment rate?",
+                        "Show me inflation data for 2023",
+                        "What is the federal funds rate?"
+                    ]
+                }
+            },
+            "required": ["text"]
+        },
+        "outputFormat": "JSON with economic data, analysis, and FRED links",
+        "averageProcessingTime": "30-60 seconds",
+        "supportedNetworks": ["PREPROD", "MAINNET"],
+        "contact": {
+            "website": "https://docs.masumi.network",
+            "support": "https://docs.masumi.network/documentation"
+        }
+    }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 7) Health Check
 # ─────────────────────────────────────────────────────────────────────────────
 @app.get("/health")
 async def health():
