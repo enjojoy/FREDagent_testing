@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 from masumi.config import Config
 from masumi.payment import Payment, Amount
 from crew_definition import FREDEconomicCrew
-from logging_config import setup_logging
+from testing.logging_config import setup_logging
 
 # Configure logging
 logger = setup_logging()

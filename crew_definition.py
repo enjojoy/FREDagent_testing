@@ -1,5 +1,5 @@
 from crewai import Agent, Crew, Task
-from logging_config import get_logger
+from testing.logging_config import get_logger
 from crewai.tools import tool
 from fredapi import Fred
 import os

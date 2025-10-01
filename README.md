@@ -15,6 +15,9 @@ This **FRED Economic Data Agent** is a production-ready AI agent that queries Fe
 Run your CrewAI agent:
 
 ```bash
+uv venv --python 3.13
+source .venv/bin/activate
+uv pip install -r requirements.txt
 # Activate virtual environment
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 

@@ -38,7 +38,7 @@ job_results/
 logs/
 *.log
 
-
+/_pycache_/
 
 # IDE
 .idea/
