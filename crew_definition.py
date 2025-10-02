@@ -200,7 +200,13 @@ class FREDEconomicCrew:
             series IDs, and know how to find both current and historical data. You always use the data retrieval 
             tool to get actual numbers with calculated metrics, never just search results.
             
-            IMPORTANT: If a tool fails 2-3 times, try a different series ID or inform the user about the issue.""",
+            CRITICAL GUARDRAILS:
+            - If a tool fails 2-3 times, try a different series ID or inform the user about the issue.
+            - If FRED search returns NO results or empty data, you MUST immediately inform the user that 
+              the requested data is not available in FRED. DO NOT make up data or provide generic responses.
+            - You ONLY work with Federal Reserve Economic Data. If a query is clearly outside economics 
+              (e.g., weather, recipes, entertainment), politely inform the user this is outside your scope.
+            - Never hallucinate data. If you cannot retrieve actual data, say so explicitly.""",
             tools=[fred_search_tool, fred_data_tool, fred_series_info_tool],
             verbose=self.verbose
         )
@@ -224,8 +230,14 @@ class FREDEconomicCrew:
             the query. When users ask for comparisons, you create comparison tables. When they ask about 
             historical periods, you retrieve that specific historical data.
             
-            CRITICAL: Only analyze data that was successfully retrieved. If data retrieval failed, acknowledge 
-            this clearly and don't fabricate numbers.""",
+            CRITICAL GUARDRAILS:
+            - Only analyze data that was successfully retrieved. If data retrieval failed, acknowledge 
+              this clearly and don't fabricate numbers.
+            - If NO data was retrieved or all searches failed, you MUST inform the user that the requested 
+              information is not available in FRED. Provide helpful suggestions for alternative queries.
+            - Never provide analysis without actual data. Never hallucinate numbers.
+            - If the query is outside the scope of FRED economic data, politely explain the agent's 
+              limitations and what types of queries it can handle.""",
             verbose=self.verbose
         )
 
@@ -251,18 +263,26 @@ class FREDEconomicCrew:
                     3. Retrieve data for each relevant series using fred_data_tool
                     4. Verify you've retrieved data for EVERY part of the query
                     
+                    EARLY EXIT CONDITIONS (Stop immediately and report):
+                    - If FRED search returns NO results for the query
+                    - If all data retrieval attempts fail
+                    - If the query appears to be outside FRED's scope (non-economic)
+                    - If no relevant economic indicators can be identified
+                    
                     FORBIDDEN:
                     - Never provide search results without retrieving actual data
                     - Never answer only part of a multi-part question
                     - Never skip historical periods specifically mentioned
                     - Never retry the same failing tool more than 3 times
+                    - Never fabricate data when retrieval fails
                     """,
                     expected_output="""Complete data retrieval including:
                     - Actual data values for ALL series mentioned in query
                     - Calculated metrics (MoM, YoY, percentiles) for each series
                     - Historical context data if requested
                     - All series metadata and FRED links
-                    - Clear indication if any data retrieval failed""",
+                    - Clear indication if any data retrieval failed
+                    - If NO data found: explicit message stating data is unavailable with suggestions""",
                     agent=fred_analyst
                 ),
                 Task(
@@ -304,13 +324,22 @@ class FREDEconomicCrew:
                     5. Format clearly with sections, bullets, and tables
                     6. If data retrieval failed, clearly state this and don't fabricate numbers
                     
+                    SPECIAL HANDLING FOR FAILED RETRIEVALS:
+                    - If NO data was retrieved, provide a clear message:
+                      "Unable to retrieve data for this query. The requested information may not be 
+                      available in FRED, or the query may be outside the scope of economic data."
+                    - Suggest 2-3 alternative valid queries the user could try
+                    - Never provide analysis sections (Executive Summary, etc.) if no data exists
+                    - Be helpful and educational about what FRED data is available
+                    
                     FORBIDDEN:
                     - Never give wall-of-text responses
                     - Never provide generic boilerplate
                     - Never skip parts of multi-part queries
                     - Never report numbers without explaining if they're high/low
                     - Never forget to format with clear sections
-                    - Never fabricate data if retrieval failed""",
+                    - Never fabricate data if retrieval failed
+                    - Never provide fake analysis when no data exists""",
                     expected_output="""Structured economic analysis with:
                     - Executive summary with key findings
                     - Detailed analysis with all requested metrics and calculated changes
