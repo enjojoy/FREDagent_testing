@@ -144,8 +144,7 @@ async def start_job(data: StartJobRequest):
         logger.info(f"Starting payment status monitoring for job {job_id}")
         await payment.start_status_monitoring(payment_callback)
 
-        # Return the response in the required format
-        return {
+        response_data = {
             "status": "success",
             "job_id": job_id,
             "blockchainIdentifier": blockchain_identifier,
@@ -159,6 +158,12 @@ async def start_job(data: StartJobRequest):
             "input_hash": payment.input_hash,
             "payByTime": payment_request["data"]["payByTime"],
         }
+
+        
+        logger.info(f"Response: {response_data}")
+
+        # Return the response in the required format
+        return response_data
     except ValueError as e:
         logger.error(f"Validation error in request: {str(e)}", exc_info=True)
         raise HTTPException(
