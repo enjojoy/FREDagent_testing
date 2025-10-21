@@ -77,11 +77,11 @@ class ProvideInputRequest(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 # CrewAI Task Execution
 # ─────────────────────────────────────────────────────────────────────────────
-async def execute_crew_task(input_data: str) -> str:
+async def execute_crew_task(input_data: dict) -> str:
     """ Execute a CrewAI task with FRED Economic Data Agents """
     logger.info(f"Starting FRED Economic Data query with input: {input_data}")
     crew = FREDEconomicCrew(logger=logger)
-    result = crew.crew.kickoff(inputs={"text": input_data})
+    result = crew.crew.kickoff(inputs=input_data)
     logger.info("FRED Economic Data query completed successfully")
     return result
 
@@ -245,8 +245,8 @@ async def get_status(job_id: str):
     if job_id in payment_instances:
         try:
             status = await payment_instances[job_id].check_payment_status()
-            job["payment_status"] = status.get("data", {}).get("status")
-            logger.info(f"Updated payment status for job {job_id}: {job['payment_status']}")
+            job["status"] = status.get("data", {}).get("status")
+            logger.info(f"Updated payment status for job {job_id}: {job['status']}")
         except ValueError as e:
             logger.warning(f"Error checking payment status: {str(e)}")
             job["payment_status"] = "unknown"
@@ -264,7 +264,6 @@ async def get_status(job_id: str):
     return {
         "job_id": job_id,
         "status": job["status"],
-        "payment_status": job["payment_status"],
         "result": result
     }
 
