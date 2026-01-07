@@ -103,17 +103,10 @@ async def start_job(data: StartJobRequest):
         logger.info(f"Received job request with input: '{truncated_input}'")
         logger.info(f"Starting job {job_id} with agent {agent_identifier}")
 
-        # Define payment amounts
-        payment_amount = os.getenv("PAYMENT_AMOUNT", "10000000")  # Default 10 ADA
-        payment_unit = os.getenv("PAYMENT_UNIT", "lovelace") # Default lovelace
-
-        amounts = [Amount(amount=payment_amount, unit=payment_unit)]
-        logger.info(f"Using payment amount: {payment_amount} {payment_unit}")
         
         # Create a payment request using Masumi
         payment = Payment(
             agent_identifier=agent_identifier,
-            amounts=amounts,
             config=config,
             identifier_from_purchaser=data.identifier_from_purchaser,
             input_data=data.input_data,
@@ -154,7 +147,6 @@ async def start_job(data: StartJobRequest):
             "agentIdentifier": agent_identifier,
             "sellerVKey": os.getenv("SELLER_VKEY"),
             "identifierFromPurchaser": data.identifier_from_purchaser,
-            "amounts": amounts,
             "input_hash": payment.input_hash,
             "payByTime": payment_request["data"]["payByTime"],
         }
@@ -312,61 +304,6 @@ async def input_schema():
                 }
             }
         ]
-    }
-
-# ─────────────────────────────────────────────────────────────────────────────
-# 6) Agent Metadata (Required for Sokosumi)
-# ─────────────────────────────────────────────────────────────────────────────
-@app.get("/metadata")
-async def get_agent_metadata():
-    """
-    Returns agent metadata for Sokosumi marketplace listing.
-    """
-    agent_identifier = os.getenv("AGENT_IDENTIFIER")
-    payment_amount = os.getenv("PAYMENT_AMOUNT", "10000000")
-    payment_unit = os.getenv("PAYMENT_UNIT", "lovelace")
-    
-    return {
-        "agentIdentifier": agent_identifier,
-        "name": "FRED Economic Data Agent",
-        "description": "AI-powered agent that queries and analyzes Federal Reserve Economic Data (FRED). Get real-time economic indicators, historical data, and expert analysis on unemployment, inflation, GDP, interest rates, and more.",
-        "version": "1.0.0",
-        "category": "Economic Data Analysis",
-        "tags": ["economics", "fred", "data-analysis", "federal-reserve", "economic-indicators"],
-        "pricing": {
-            "amount": payment_amount,
-            "unit": payment_unit,
-            "currency": "ADA"
-        },
-        "capabilities": [
-            "Search FRED database for economic data series",
-            "Retrieve real-time economic indicators",
-            "Provide historical data analysis",
-            "Explain economic concepts and trends",
-            "Generate direct links to FRED data sources"
-        ],
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "text": {
-                    "type": "string",
-                    "description": "Economic data query or question",
-                    "examples": [
-                        "What is the current unemployment rate?",
-                        "Show me inflation data for 2023",
-                        "What is the federal funds rate?"
-                    ]
-                }
-            },
-            "required": ["text"]
-        },
-        "outputFormat": "JSON with economic data, analysis, and FRED links",
-        "averageProcessingTime": "30-60 seconds",
-        "supportedNetworks": ["PREPROD", "MAINNET"],
-        "contact": {
-            "website": "https://docs.masumi.network",
-            "support": "https://docs.masumi.network/documentation"
-        }
     }
 
 # ─────────────────────────────────────────────────────────────────────────────

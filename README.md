@@ -251,7 +251,6 @@ curl -X POST 'http://localhost:3001/api/v1/purchase' \
 Your FRED agent is now **Sokosumi marketplace ready** with:
 
 - ✅ **MIP-003 Compliant API** - All required endpoints
-- ✅ **Agent Metadata** - `/metadata` endpoint for marketplace
 - ✅ **Enhanced Input Schema** - Detailed requirements with examples
 - ✅ **Production Ready** - Docker support and comprehensive error handling
 
